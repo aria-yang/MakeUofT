@@ -14,7 +14,9 @@ Adafruit_SSD1306 oled(128, 32, &Wire, -1);
 // RTC_PCF8523 rtc;
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-
+bool buzzerStopped = false;
+bool lowTone = false;
+int tonetype = 0;
 // variables
 int led1 = 10;
 int led2 = 11;
@@ -27,13 +29,13 @@ int buzzerPin = 8; // buzzer location
 int sensorValue; // to store value
 
 // clock variables
-int hourupg;
-int minupg;
-int yearupg;
-int monthupg;
-int dayupg;
-int menu=0;
-const int debounce = 35;
+// int hourupg;
+// int minupg;
+// int yearupg;
+// int monthupg;
+// int dayupg;
+// int menu=0;
+// const int debounce = 35;
 
 // loudness
 int loud = 300;
@@ -47,17 +49,19 @@ void setup() {
   Serial.println(F("SSD1306 allocation failed"));
   while (true);
   }
+
+  // set LED as outputs
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(sensorPin, INPUT);
+
   oled.clearDisplay();
   oled.setTextSize(1);
   oled.setTextColor(SSD1306_WHITE);
   oled.setCursor (0, 0);
   oled.print("");
   oled.display();
-  // set LED as outputs
-  pinMode(led1, OUTPUT);
-  pinMode(led2, OUTPUT);
-  pinMode(buzzerPin, OUTPUT);
-  pinMode(sensorPin, INPUT);
 
   digitalWrite(led1, LOW);
   digitalWrite(led2, LOW);
@@ -93,19 +97,23 @@ void loop() {
 
   // strong force = no sound
   if(sensorValue > 300) {
+    buzzerStopped = true;
     noTone(buzzerPin);
-    delay(100000);
+  }
+  if(!buzzerStopped)
+  {
+    if (sensorValue <= 300 && sensorValue > 50) {
+    tone(buzzerPin, 300);
+    analogWrite(buzzerPin, midloud);
+    lowTone = true;
+    // delay(100);
+    }
+    else if (!buzzerStopped && !lowTone){
+      tone(buzzerPin, 440);
+      analogWrite(buzzerPin, loud);
+    }
   }
   // slight force = two sounds
-  else if (sensorValue <= 300 && sensorValue > 50) {
-    analogWrite(buzzerPin, midloud);
-    delay(100000);
-  }
-  // no force = keeps ringing
-  else {
-    tone(buzzerPin, 440, 2000);
-    analogWrite(buzzerPin, loud);
-  }
 }
 
 // void DisplayDateTime()
