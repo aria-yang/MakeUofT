@@ -82,12 +82,6 @@ void loop() {
   sensorValue = analogRead(sensorPin);
   // DisplayDateTime(); 
 
-  // Oled.setFont(u8x8_font_chroma48medium8_r);
-  // Oled.setCursor(0, 33);
-  // Oled.print("Analog Value:");
-  // Oled.print(sensorValue);
-  // Oled.refreshDisplay();
-  // delay(1000);
   oled.clearDisplay();
   oled.setCursor(0, 0);
   oled.print("Sensor Value: ");
