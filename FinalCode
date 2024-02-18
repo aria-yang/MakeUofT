@@ -1,0 +1,158 @@
+#include "RTClib.h"
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+
+#define SCREEN_I2C_ADDR 0x3D
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 32
+
+Adafruit_SSD1306 oled(128, 32, &Wire, -1);
+
+// RTC_DS1307 rtc;
+RTC_PCF8523 rtc;
+
+char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+bool buzzerStopped = true;
+bool lowTone = false;
+int tonetype = 0;
+// variables
+int led1 = 10;
+int led2 = 11;
+int sensorPin = A0; // analog pin
+int SDAPinD = A2; // Display 
+int SDIPinD = A3; // Display
+int SDAPin = A4; // SDA for RTC
+int SDIPin = A5; // SDI for RTC 
+int buzzerPin = 8; // buzzer location
+int sensorValue; // to store value
+
+// clock variables
+int hourupg;
+int minupg;
+int yearupg;
+int monthupg;
+int dayupg;
+int menu=0;
+const int debounce = 35;
+
+// set the alarm
+int alarmhour = 10;
+int alarmminute = 37;
+int alarmsecond = 00;
+
+// loudness
+int loud = 300;
+int midloud = 10;
+
+void setup() {
+  // put your setup code here, to run once:
+
+  // set up display
+  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+  Serial.println(F("SSD1306 allocation failed"));
+  while (true);
+  }
+
+  // set LED as outputs
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(sensorPin, INPUT);
+
+  oled.clearDisplay();
+  oled.setTextSize(1);
+  oled.setTextColor(SSD1306_WHITE);
+  oled.setCursor (0, 0);
+  oled.print("");
+  oled.display();
+
+  digitalWrite(led1, LOW);
+  digitalWrite(led2, LOW);
+  
+  // initialize serial communication
+  Serial.begin(9600);
+
+  #ifndef ESP8266
+  while (!Serial); // wait for serial port to connect. Needed for native USB
+  #endif
+
+  if (! rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    Serial.flush();
+    abort();
+  }
+  // rtc.begin(DateTime(__DATE__, __TIME__));
+  // rtc.adjust(DateTime(F(DATE), F(TIME)));
+  // rtc.adjust(DateTime(2024, 02, 18, 10, 32, 0));
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  // read sensor value
+  sensorValue = analogRead(sensorPin);
+
+  oled.clearDisplay();
+  oled.setCursor(0, 0);
+  // oled.print("Sensor Value: ");
+  // oled.println(sensorValue);
+  DisplayDateTime(); 
+  oled.display();
+  // print sensor value
+  Serial.print("Sensor Value: ");
+  Serial.println(sensorValue);
+
+  // strong force = no sound
+  if(sensorValue > 300) {
+    buzzerStopped = true;
+    noTone(buzzerPin);
+  }
+  if(!buzzerStopped)
+  {
+    if (sensorValue <= 300 && sensorValue > 50) {
+    tone(buzzerPin, 300);
+    analogWrite(buzzerPin, midloud);
+    lowTone = true;
+    // delay(100);
+    }
+    else if (!buzzerStopped && !lowTone){
+      tone(buzzerPin, 440);
+      analogWrite(buzzerPin, loud);
+    }
+  }
+  // slight force = two sounds
+}
+
+void DisplayDateTime()
+{
+  // Clock function
+  DateTime now = rtc.now();
+  if (now.hour() == alarmhour && now.minute() == alarmminute && now.second() == alarmsecond)
+  {
+    buzzerStopped = false;
+    Serial.println("Buzzer Stopped is false");
+  } 
+
+    // Serial.print(now.year(), DEC);
+    // Serial.print('/');
+    oled.print(now.month(), DEC);
+    oled.print('/');
+    oled.print(now.day(), DEC);
+    oled.print(" (");
+    oled.print(daysOfTheWeek[now.dayOfTheWeek()]);
+    oled.println(") ");
+    oled.print(now.hour(), DEC);
+    oled.print(':');
+    oled.print(now.minute(), DEC);
+    oled.print(':');
+    oled.print(now.second(), DEC);
+    oled.println();
+
+    // oled.print(" since midnight 1/1/1970 = ");
+    // oled.print(now.unixtime());
+    // oled.print("s = ");
+    // oled.print(now.unixtime() / 86400L);
+    // oled.println("d");
+    // delay(30);
+}
