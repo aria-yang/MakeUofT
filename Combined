@@ -97,20 +97,6 @@ void loop() {
   Serial.print("Sensor Value: ");
   Serial.println(sensorValue);
 
-  // LED directions
-  if(sensorValue > 750) {
-    digitalWrite(led1, HIGH);
-    digitalWrite(led2, HIGH);
-  }
-  else if(sensorValue <= 750 && sensorValue > 100) {
-    digitalWrite(led1, HIGH);
-    digitalWrite(led2, LOW);
-  }
-  else{
-    digitalWrite(led1, LOW);
-    digitalWrite(led2, LOW);
-  }
-
   // strong force = no sound
   if(sensorValue > 300) {
     noTone(buzzerPin);
