@@ -85,7 +85,8 @@ void setup() {
   }
   // rtc.begin(DateTime(__DATE__, __TIME__));
   // rtc.adjust(DateTime(F(DATE), F(TIME)));
-  // rtc.adjust(DateTime(2024, 02, 18, 10, 32, 0));
+  // Set the time
+  rtc.adjust(DateTime(2024, 02, 18, 10, 40, 0));
 }
 
 void loop() {
