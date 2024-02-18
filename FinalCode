@@ -39,8 +39,8 @@ const int debounce = 35;
 
 // set the alarm
 int alarmhour = 10;
-int alarmminute = 37;
-int alarmsecond = 00;
+int alarmminute = 45;
+int alarmsecond = 10;
 
 // loudness
 int loud = 300;
@@ -83,10 +83,8 @@ void setup() {
     Serial.flush();
     abort();
   }
-  // rtc.begin(DateTime(__DATE__, __TIME__));
-  // rtc.adjust(DateTime(F(DATE), F(TIME)));
   // Set the time
-  rtc.adjust(DateTime(2024, 02, 18, 10, 40, 0));
+  rtc.adjust(DateTime(2024, 02, 18, 10, 45, 0));
 }
 
 void loop() {
@@ -149,11 +147,4 @@ void DisplayDateTime()
     oled.print(':');
     oled.print(now.second(), DEC);
     oled.println();
-
-    // oled.print(" since midnight 1/1/1970 = ");
-    // oled.print(now.unixtime());
-    // oled.print("s = ");
-    // oled.print(now.unixtime() / 86400L);
-    // oled.println("d");
-    // delay(30);
 }
