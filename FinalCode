@@ -84,7 +84,7 @@ void setup() {
     abort();
   }
   // Set the time
-  rtc.adjust(DateTime(2024, 02, 18, 10, 45, 0));
+  // rtc.adjust(DateTime(2024, 02, 18, 10, 45, 0));
 }
 
 void loop() {
